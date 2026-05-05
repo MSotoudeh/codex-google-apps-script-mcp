@@ -16,8 +16,23 @@ token.json
 *.pem
 *.key
 
+# Google clasp / Apps Script local state
+# In real private Apps Script repos, .clasp.json may be intentionally committed.
+# In this public setup template, keep real script bindings out of the repo.
+.clasp.json
+.claspignore.local
+appsscript.local.json
+
+# Local Codex / MCP machine-specific config
+.mcp.json
+
 # Local Apps Script output and temporary smoke-test projects
 gas-smoke/
+*-smoke/
+
+# Temporary folders
+tmp/
+temp/
 
 # OS and editor files
 .DS_Store
