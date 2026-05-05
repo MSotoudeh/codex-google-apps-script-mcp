@@ -1,6 +1,6 @@
 # Codex clasp MCP setup
 
-Windows-first setup template for connecting Codex to Google Apps Script through the official `@google/clasp` MCP server.
+Cross-platform setup template for connecting Codex to Google Apps Script through the official `@google/clasp` MCP server. Windows users can use PowerShell scripts; macOS/Linux users can use Bash scripts; Codex CLI users use the same MCP server config in their CLI MCP configuration.
 
 This repository does **not** implement a custom MCP server. It provides a reusable MCP configuration, safety rules, setup guide, verification script, plug-and-play installer, and minimal Apps Script example for using Codex to manage Google Apps Script projects through clasp.
 
@@ -16,7 +16,16 @@ cd codex-google-apps-script-mcp
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-The installer checks local tools, opens the Apps Script API settings page, handles clasp login unless skipped, and creates or updates `.mcp.json` with the `clasp` MCP server.
+For most macOS/Linux users:
+
+```bash
+git clone https://github.com/MSotoudeh/codex-google-apps-script-mcp.git
+cd codex-google-apps-script-mcp
+chmod +x ./install.sh ./scripts/verify-clasp.sh
+./install.sh
+```
+
+The installer checks local tools, opens the Apps Script API settings page when possible, handles clasp login unless skipped, and creates or updates `.mcp.json` with the `clasp` MCP server.
 
 After installation, restart Codex and ask:
 
@@ -24,7 +33,7 @@ After installation, restart Codex and ask:
 List the available MCP tools from the clasp server. Do not modify any files or Google projects.
 ```
 
-For options such as installing into a different workspace, skipping login, or running without browser launch, see [`QUICKSTART.md`](QUICKSTART.md).
+For options such as installing into a different workspace, skipping login, or running without browser launch, see [`QUICKSTART.md`](QUICKSTART.md). For platform-specific details, see [`docs/windows-codex-setup.md`](docs/windows-codex-setup.md) and [`docs/macos-linux-codex-setup.md`](docs/macos-linux-codex-setup.md).
 
 ## What this repo gives you
 
@@ -45,7 +54,7 @@ This repo intentionally avoids storing any real Apps Script project, OAuth token
 ## Architecture
 
 ```text
-Codex Desktop on Windows
+Codex Desktop or Codex CLI
    |
    | MCP stdio
    v
@@ -109,11 +118,13 @@ For durable background orchestration, retries, long-running workflows, or comple
 .
 ├── .gitignore
 ├── .mcp.example.json
+├── install.sh
 ├── install.ps1
 ├── LICENSE
 ├── QUICKSTART.md
 ├── README.md
 ├── docs/
+│   ├── macos-linux-codex-setup.md
 │   ├── security-model.md
 │   └── windows-codex-setup.md
 ├── examples/
@@ -122,21 +133,30 @@ For durable background orchestration, retries, long-running workflows, or comple
 │       ├── README.md
 │       └── appsscript.json
 └── scripts/
-    └── verify-clasp.ps1
+    ├── verify-clasp.ps1
+    └── verify-clasp.sh
 ```
 
 ## Prerequisites
 
-- Windows with PowerShell
-- Codex Desktop or another MCP-capable Codex environment
+- Windows with PowerShell, or macOS/Linux with Bash
+- Codex Desktop, Codex CLI, or another MCP-capable Codex environment
 - Node.js 20 or newer
 - npm or npx
 - a Google account
 - Git and GitHub if you want version control
 
-Check Node and npm:
+Check Node and npm on Windows:
 
 ```powershell
+node --version
+npm --version
+npx -y @google/clasp --version
+```
+
+Check Node and npm on macOS/Linux:
+
+```bash
 node --version
 npm --version
 npx -y @google/clasp --version
@@ -152,9 +172,15 @@ If you just enabled it and still see an API-disabled error, wait a few minutes a
 
 ## 2. Authenticate clasp
 
-Run:
+Run on Windows:
 
 ```powershell
+npx -y @google/clasp login
+```
+
+Run on macOS/Linux:
+
+```bash
 npx -y @google/clasp login
 ```
 
@@ -198,18 +224,34 @@ If your `.mcp.json` already has other MCP servers, add only the `clasp` entry un
 
 After editing `.mcp.json`, restart Codex so it loads the MCP server.
 
-## 4. Verify from PowerShell
+For Codex CLI, place the same `clasp` MCP server entry in the MCP config file that your CLI installation reads, then restart or reload Codex CLI.
 
-Run the included verification script:
+## 4. Verify locally
+
+Run the included PowerShell verification script on Windows:
 
 ```powershell
 .\scripts\verify-clasp.ps1
 ```
 
-For CI or other automation, emit a machine-readable result:
+Run the included Bash verification script on macOS/Linux:
+
+```bash
+./scripts/verify-clasp.sh
+```
+
+For CI or other automation, emit a machine-readable result.
+
+Windows:
 
 ```powershell
 .\scripts\verify-clasp.ps1 -Json
+```
+
+macOS/Linux:
+
+```bash
+./scripts/verify-clasp.sh --json
 ```
 
 The script checks:
@@ -242,6 +284,13 @@ Inspect the generated local folder:
 
 ```powershell
 Get-ChildItem -Force .\gas-smoke
+```
+
+On macOS/Linux:
+
+```bash
+npx -y @google/clasp create-script --title codex-clasp-smoke --rootDir gas-smoke
+ls -la ./gas-smoke
 ```
 
 List accessible scripts:
@@ -347,12 +396,23 @@ Also confirm your `.mcp.json` is in the workspace Codex is actually using.
 
 ### `npx` cannot find clasp
 
-Check Node.js and npm:
+Check Node.js and npm.
+
+Windows:
 
 ```powershell
 node --version
 npm --version
 npx -y @google/clasp --version
+```
+
+macOS/Linux:
+
+```bash
+node --version
+npm --version
+npx -y @google/clasp --version
+command -v npx
 ```
 
 ### The wrong Google account is used
@@ -373,7 +433,7 @@ npx -y @google/clasp login
 ## Suggested GitHub description
 
 ```text
-Connect Codex on Windows to Google Apps Script using the official @google/clasp MCP server.
+Connect Codex to Google Apps Script using the official @google/clasp MCP server.
 ```
 
 ## Suggested GitHub topics
@@ -387,6 +447,10 @@ apps-script
 clasp
 google-clasp
 windows
+powershell
+macos
+linux
+codex-cli
 automation
 developer-tools
 ai-coding

@@ -1,6 +1,6 @@
 # Plug-and-play quickstart
 
-This is the shortest path for a Windows user who wants Codex to use Google Apps Script through the official `@google/clasp` MCP server.
+This is the shortest path for users who want Codex to use Google Apps Script through the official `@google/clasp` MCP server.
 
 ## What this installs
 
@@ -15,7 +15,7 @@ It configures Codex to run:
 }
 ```
 
-## One-command setup
+## Windows setup
 
 Clone the repo:
 
@@ -30,6 +30,22 @@ Run the installer from the workspace you want Codex to use:
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
+## macOS/Linux setup
+
+Clone the repo:
+
+```bash
+git clone https://github.com/MSotoudeh/codex-google-apps-script-mcp.git
+cd codex-google-apps-script-mcp
+```
+
+Run the installer from the workspace you want Codex to use:
+
+```bash
+chmod +x ./install.sh ./scripts/verify-clasp.sh
+./install.sh
+```
+
 The installer will:
 
 - check `node`, `npm`, and `npx`
@@ -42,25 +58,66 @@ The installer will:
 
 ## Install into a different workspace
 
+Windows:
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -WorkspacePath "C:\GitHub\my-apps-script-project"
+```
+
+macOS/Linux:
+
+```bash
+./install.sh --workspace "$HOME/projects/my-apps-script-project"
 ```
 
 ## Skip login
 
 Use this if clasp is already authenticated or if you only want to generate `.mcp.json`:
 
+Windows:
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -SkipLogin
+```
+
+macOS/Linux:
+
+```bash
+./install.sh --skip-login
 ```
 
 ## No browser launch
 
 Use this if you are in a restricted terminal session:
 
+Windows:
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -NoBrowser
 ```
+
+macOS/Linux:
+
+```bash
+./install.sh --no-browser
+```
+
+## Codex CLI
+
+Codex CLI uses the same MCP server command:
+
+```json
+{
+  "mcpServers": {
+    "clasp": {
+      "command": "npx",
+      "args": ["-y", "@google/clasp", "mcp"]
+    }
+  }
+}
+```
+
+Put that entry in the MCP config file your Codex CLI installation reads, then restart or reload Codex CLI.
 
 ## After installation
 
