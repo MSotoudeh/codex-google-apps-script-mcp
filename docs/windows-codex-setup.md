@@ -97,6 +97,12 @@ From this repo:
 .\scripts\verify-clasp.ps1
 ```
 
+For automated checks, use JSON output:
+
+```powershell
+.\scripts\verify-clasp.ps1 -Json
+```
+
 This checks Node.js, npm, npx, clasp, and clasp login state.
 
 ## 9. Create a smoke-test project

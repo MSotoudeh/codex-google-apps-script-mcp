@@ -206,6 +206,12 @@ Run the included verification script:
 .\scripts\verify-clasp.ps1
 ```
 
+For CI or other automation, emit a machine-readable result:
+
+```powershell
+.\scripts\verify-clasp.ps1 -Json
+```
+
 The script checks:
 
 - Node.js availability
