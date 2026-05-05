@@ -1,0 +1,32 @@
+# Dependencies and package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+.clasprc.json
+clasprc.json
+credentials.json
+token.json
+*.pem
+*.key
+
+# Local Apps Script output and temporary smoke-test projects
+gas-smoke/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs and generated files
+*.log
+dist/
+build/
+coverage/
