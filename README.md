@@ -2,9 +2,29 @@
 
 Windows-first setup template for connecting Codex to Google Apps Script through the official `@google/clasp` MCP server.
 
-This repository does **not** implement a custom MCP server. It provides a reusable MCP configuration, safety rules, setup guide, verification script, and minimal Apps Script example for using Codex to manage Google Apps Script projects through clasp.
+This repository does **not** implement a custom MCP server. It provides a reusable MCP configuration, safety rules, setup guide, verification script, plug-and-play installer, and minimal Apps Script example for using Codex to manage Google Apps Script projects through clasp.
 
 It is **not** a general Google Workspace MCP server. It does not give Codex direct Gmail, Drive, Calendar, Docs, Sheets, or Admin SDK tools. Codex gets project-management access to Apps Script through clasp. Any Google Workspace access happens only inside the Apps Script project at runtime and depends on that script's authorization scopes.
+
+## Plug-and-play setup
+
+For most Windows users:
+
+```powershell
+git clone https://github.com/MSotoudeh/codex-google-apps-script-mcp.git
+cd codex-google-apps-script-mcp
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+The installer checks local tools, opens the Apps Script API settings page, handles clasp login unless skipped, and creates or updates `.mcp.json` with the `clasp` MCP server.
+
+After installation, restart Codex and ask:
+
+```text
+List the available MCP tools from the clasp server. Do not modify any files or Google projects.
+```
+
+For options such as installing into a different workspace, skipping login, or running without browser launch, see [`QUICKSTART.md`](QUICKSTART.md).
 
 ## What this repo gives you
 
@@ -89,7 +109,9 @@ For durable background orchestration, retries, long-running workflows, or comple
 .
 ├── .gitignore
 ├── .mcp.example.json
+├── install.ps1
 ├── LICENSE
+├── QUICKSTART.md
 ├── README.md
 ├── docs/
 │   ├── security-model.md
@@ -155,7 +177,9 @@ Expected shape:
 
 Do not commit clasp credentials, token files, generated local secrets, or private script identifiers to a public repository.
 
-## 3. Configure Codex MCP
+## 3. Configure Codex MCP manually
+
+The installer does this automatically. Manual config is useful if you do not want to run scripts.
 
 Copy the example MCP config into your Codex workspace config or merge the `clasp` server into your existing `.mcp.json`:
 
