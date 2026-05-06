@@ -2,6 +2,14 @@
 
 This is the shortest path for users who want Codex to use Google Apps Script through the official `@google/clasp` MCP server.
 
+## Why this exists
+
+Use this repo when you want Codex to help with Google Apps Script development, but you do **not** want to give Codex direct MCP access to your whole Google Workspace.
+
+A broad Workspace MCP server can be useful when you intentionally want AI access to Gmail, Drive, Calendar, Docs, Sheets, or Admin data. This repo is for the narrower case: manage Apps Script projects through clasp, keep code local and reviewable, and avoid exposing unrelated sensitive Workspace data by default.
+
+Full explanation: [`docs/why-this-exists.md`](docs/why-this-exists.md)
+
 ## What this installs
 
 It does not install a custom MCP server.
