@@ -1,40 +1,43 @@
-# Codex clasp MCP setup
+# codex-google-apps-script-mcp
 
-Cross-platform setup template for connecting Codex to Google Apps Script through the official `@google/clasp` MCP server.
+A setup template that connects Codex to Google Apps Script through the official `@google/clasp` MCP server, without granting Codex direct access to the rest of Google Workspace.
 
-This repository exists for people who want Codex to help with **Google Apps Script development** without giving Codex broad direct access to Gmail, Drive, Calendar, Docs, Sheets, or the rest of Google Workspace.
+## Status
 
-General Google Workspace MCP servers are powerful, but they can expose a large permission surface. That may be excessive if the real job is only: edit Apps Script files, push/pull with clasp, run functions, inspect logs, and manage Apps Script deployments.
+Maintenance. The template is complete and stable; it only needs changes when `@google/clasp` changes its CLI or MCP interface.
 
-This repo takes the narrower path:
+## What it does
+
+Codex gets project-management access to Apps Script through clasp and nothing else. With this setup Codex can:
+
+- create or clone Apps Script projects and pull them to a local folder
+- edit the source files locally, with every change visible in git
+- push edits back, create versions and deployments
+- run script functions and tail logs
+
+It does **not** give Codex Gmail, Drive, Calendar, Docs, Sheets or Admin tools. Any Workspace access happens inside the Apps Script project at runtime, limited by that script's own authorization scopes. The full rationale is in [docs/why-this-exists.md](docs/why-this-exists.md).
+
+This repository implements no MCP server of its own. It ships configuration, installers, verification scripts, setup guides and a minimal example.
+
+## How it works
 
 ```text
-Codex
-  -> @google/clasp MCP
-  -> Apps Script project management
+Codex Desktop or Codex CLI
+   | MCP stdio
+   v
+npx -y @google/clasp mcp        (local OAuth session, clasp commands)
+   |
+   v
+Google Apps Script API  ->  your Apps Script project
 ```
 
-Not this broader path:
+The installer checks Node.js/npm/npx, opens the Apps Script API settings page, runs `clasp login` (unless skipped) and writes a `clasp` entry into `.mcp.json`.
 
-```text
-Codex
-  -> broad Google Workspace MCP
-  -> Gmail / Drive / Calendar / Docs / Sheets / Admin data
-```
+## Quick start
 
-The goal is a smaller blast radius: local files, explicit sync, visible code changes, and no direct Workspace-wide tool access by default.
+Requirements: Node.js 20+, npm/npx, a Google account, Codex Desktop or Codex CLI.
 
-Read the full rationale: [`docs/why-this-exists.md`](docs/why-this-exists.md).
-
-## What this is
-
-This repository does **not** implement a custom MCP server. It provides reusable MCP configuration, safety rules, setup guides, verification scripts, plug-and-play installers, and a minimal Apps Script example for using Codex to manage Google Apps Script projects through clasp.
-
-It is **not** a general Google Workspace MCP server. It does not give Codex direct Gmail, Drive, Calendar, Docs, Sheets, or Admin SDK tools. Codex gets project-management access to Apps Script through clasp. Any Google Workspace access happens only inside the Apps Script project at runtime and depends on that script's authorization scopes.
-
-## Plug-and-play setup
-
-For most Windows users:
+Windows:
 
 ```powershell
 git clone https://github.com/MSotoudeh/codex-google-apps-script-mcp.git
@@ -42,7 +45,7 @@ cd codex-google-apps-script-mcp
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-For most macOS/Linux users:
+macOS/Linux:
 
 ```bash
 git clone https://github.com/MSotoudeh/codex-google-apps-script-mcp.git
@@ -51,167 +54,17 @@ chmod +x ./install.sh ./scripts/verify-clasp.sh
 ./install.sh
 ```
 
-The installer checks local tools, opens the Apps Script API settings page when possible, handles clasp login unless skipped, and creates or updates `.mcp.json` with the `clasp` MCP server.
+Restart Codex, then ask: "List the available MCP tools from the clasp server. Do not modify any files or Google projects."
 
-After installation, restart Codex and ask:
-
-```text
-List the available MCP tools from the clasp server. Do not modify any files or Google projects.
-```
-
-For options such as installing into a different workspace, skipping login, or running without browser launch, see [`QUICKSTART.md`](QUICKSTART.md). For platform-specific details, see [`docs/windows-codex-setup.md`](docs/windows-codex-setup.md) and [`docs/macos-linux-codex-setup.md`](docs/macos-linux-codex-setup.md).
-
-## What this repo gives you
-
-With this setup, Codex can use clasp-backed MCP tooling to:
-
-- create or clone Google Apps Script projects
-- pull Apps Script files to a local folder
-- edit source files locally through Codex
-- push local edits back to Apps Script
-- inspect project status before syncing
-- create script versions and deployments
-- run script functions
-- tail Apps Script logs
-- open related Apps Script project URLs
-
-This repo intentionally avoids storing any real Apps Script project, OAuth token, user-specific Google credential, or private script ID.
-
-## Architecture
-
-```text
-Codex Desktop or Codex CLI
-   |
-   | MCP stdio
-   v
-@google/clasp mcp
-   |
-   | local OAuth session + clasp commands
-   v
-Google Apps Script API
-   |
-   v
-Apps Script project
-   |
-   | runtime authorization scopes
-   v
-Google services used by that script
-```
-
-Boundary:
-
-```text
-This repo configures only the Codex -> clasp -> Apps Script project path.
-It is not a general Google Workspace MCP server.
-```
-
-## When this is a good fit
-
-Use this setup when:
-
-- you want Codex to help develop Apps Script code
-- you do not want Codex to have direct Gmail, Drive, Calendar, Docs, or Sheets MCP tools
-- your automation is implemented in Google Apps Script
-- you want Codex to edit Apps Script source files in a local folder
-- you want version control around Apps Script changes
-- you need repeatable pull, push, deploy, run, and log workflows
-- a script started in the browser editor and is now important enough to maintain properly
-
-Typical targets:
-
-- Google Sheets automations implemented as Apps Script code
-- Apps Script web apps
-- Gmail, Drive, Calendar, Docs, or Sheets automations implemented inside Apps Script
-- scheduled trigger jobs
-- internal business utilities
-- small integrations where Apps Script is simpler than a full backend
-
-## When not to use this
-
-This setup is not the right tool when:
-
-- you intentionally want direct Gmail, Drive, Calendar, Docs, or Sheets MCP tools in Codex
-- you need service-account or domain-wide delegation from day one
-- you need a production backend with low latency, private networking, or heavy compute
-- you need durable orchestration, retries, queues, or long-running workflows
-- you want Apps Script to call Codex directly
-- the script is a one-line personal macro that will never be maintained
-
-For durable background orchestration, retries, long-running workflows, or complex multi-step jobs, use a real backend or workflow engine outside this basic clasp MCP setup.
-
-## Repository contents
-
-```text
-.
-├── .gitignore
-├── .mcp.example.json
-├── install.sh
-├── install.ps1
-├── LICENSE
-├── QUICKSTART.md
-├── README.md
-├── docs/
-│   ├── macos-linux-codex-setup.md
-│   ├── security-model.md
-│   ├── why-this-exists.md
-│   └── windows-codex-setup.md
-├── examples/
-│   └── hello-apps-script/
-│       ├── Code.js
-│       ├── README.md
-│       └── appsscript.json
-└── scripts/
-    ├── verify-clasp.ps1
-    └── verify-clasp.sh
-```
-
-## Prerequisites
-
-- Windows with PowerShell, or macOS/Linux with Bash
-- Codex Desktop, Codex CLI, or another MCP-capable Codex environment
-- Node.js 20 or newer
-- npm or npx
-- a Google account
-- Git and GitHub if you want version control
-
-Check Node and npm:
-
-```bash
-node --version
-npm --version
-npx -y @google/clasp --version
-```
-
-## Manual setup summary
-
-The installer is recommended. Manual setup is still simple:
-
-1. Enable the Apps Script API: <https://script.google.com/home/usersettings>
-2. Authenticate clasp:
-
-```bash
-npx -y @google/clasp login
-```
-
-3. Add the MCP server to your Codex MCP config:
+Manual setup: enable the Apps Script API at <https://script.google.com/home/usersettings>, run `npx -y @google/clasp login`, and add this to your Codex MCP config:
 
 ```json
-{
-  "mcpServers": {
-    "clasp": {
-      "command": "npx",
-      "args": ["-y", "@google/clasp", "mcp"]
-    }
-  }
-}
+{ "mcpServers": { "clasp": { "command": "npx", "args": ["-y", "@google/clasp", "mcp"] } } }
 ```
 
-4. Restart Codex.
-5. Ask Codex to list the clasp MCP tools without modifying anything.
+More options (other workspace, skip login, no browser): [docs/quickstart.md](docs/quickstart.md), [docs/windows-codex-setup.md](docs/windows-codex-setup.md), [docs/macos-linux-codex-setup.md](docs/macos-linux-codex-setup.md).
 
-For detailed setup, use [`QUICKSTART.md`](QUICKSTART.md).
-
-## Verify locally
+### Verify the setup
 
 Windows:
 
@@ -219,87 +72,42 @@ Windows:
 .\scripts\verify-clasp.ps1
 ```
 
-macOS/Linux:
+macOS/Linux, human-readable or machine-readable (JSON) output for Codex CLI or other automation:
 
 ```bash
 ./scripts/verify-clasp.sh
+./scripts/verify-clasp.sh --json
 ```
 
-The scripts check Node.js, npm, npx, clasp availability, and clasp authentication status.
+The scripts check Node.js, npm, npx, clasp availability and clasp authentication (`clasp show-authorized-user --json`).
 
-## Smoke test
+## Configuration
 
-After enabling the Apps Script API and authenticating:
+There are no environment variables. Local state is git-ignored: `.mcp.json` (your machine's MCP config; start from [`.mcp.example.json`](.mcp.example.json)), `.clasp.json`, `.clasprc.json`, `gas-smoke/`.
+
+## Project layout
+
+```text
+install.ps1, install.sh      plug-and-play installers (Windows / macOS+Linux)
+.mcp.example.json            example MCP configuration
+scripts/                     verify-clasp.ps1 / verify-clasp.sh diagnostics
+docs/                        quickstart, platform guides, security model, rationale, history
+examples/hello-apps-script/  minimal Apps Script source (no real script binding)
+tests/                       node:test checks for installers and docs
+```
+
+## Testing
 
 ```bash
-npx -y @google/clasp create-script --title codex-clasp-smoke --rootDir gas-smoke
+node --test
 ```
 
-List accessible scripts:
+On Node 25, `node --test tests/` is interpreted as a module path and fails; run `node --test` or `node --test tests/*.test.mjs`.
 
-```bash
-npx -y @google/clasp list-scripts
-```
+## Contributing
 
-The `gas-smoke/` folder is ignored by git.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md). Project background: [docs/HISTORY.md](docs/HISTORY.md).
 
-## Minimal example
+## License
 
-This repo includes a tiny Apps Script example in:
-
-```text
-examples/hello-apps-script/
-```
-
-Use it as starter source content after you create or clone an Apps Script project with clasp. It intentionally does not contain a real `.clasp.json` script binding.
-
-## Public-repo safety baseline
-
-For public repositories, commit setup files and source code, but do not commit:
-
-- OAuth tokens
-- `.clasprc.json`
-- `.clasp.json` with a private script ID
-- `.mcp.json` with machine-specific local config
-- `.env` files
-- credentials
-- private script IDs
-- local logs or generated artifacts
-
-See [`docs/security-model.md`](docs/security-model.md) for the security boundary.
-
-## Suggested GitHub description
-
-```text
-Narrow Codex MCP setup for Google Apps Script via @google/clasp, without direct Workspace-wide MCP access.
-```
-
-## Suggested GitHub topics
-
-```text
-codex
-mcp
-model-context-protocol
-google-apps-script
-apps-script
-clasp
-google-clasp
-windows
-powershell
-macos
-linux
-codex-cli
-automation
-developer-tools
-ai-coding
-google-workspace
-privacy-conscious
-least-privilege
-```
-
-## References
-
-- [Google clasp guide](https://developers.google.com/apps-script/guides/clasp)
-- [google/clasp on GitHub](https://github.com/google/clasp)
-- [Apps Script API: manage projects](https://developers.google.com/apps-script/api/how-tos/manage-projects)
-- [Apps Script authorization scopes](https://developers.google.com/apps-script/concepts/scopes)
+MIT, see [LICENSE](LICENSE).

@@ -8,7 +8,7 @@ Use this repo when you want Codex to help with Google Apps Script development, b
 
 A broad Workspace MCP server can be useful when you intentionally want AI access to Gmail, Drive, Calendar, Docs, Sheets, or Admin data. This repo is for the narrower case: manage Apps Script projects through clasp, keep code local and reviewable, and avoid exposing unrelated sensitive Workspace data by default.
 
-Full explanation: [`docs/why-this-exists.md`](docs/why-this-exists.md)
+Full explanation: [`docs/why-this-exists.md`](why-this-exists.md)
 
 ## What this installs
 
@@ -155,4 +155,4 @@ This setup does not give Codex direct access to Gmail, Drive, Calendar, Docs, or
 
 It gives Codex access to clasp-backed Apps Script project management through the user's local Google OAuth session.
 
-Read: [`docs/security-model.md`](docs/security-model.md)
+Read: [`docs/security-model.md`](security-model.md)
